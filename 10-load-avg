@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# Function to place text at left side of box and and put some '#'s around it
+left(){
+SP=$(( 62 - ${#1} ))
+# put message together (formatted left-side message)
+FLM=" # $1"$(printf %"$SP"s)"#"
+}
+#
+# get system information
+## system load
+load=$(awk '{print $1}' /proc/loadavg)
+#
+## memory use
+memUse=$(awk '/^MemTotal:/ {total=$2} /^MemFree:/ {free=$2} /^Buffers:/ {buffers=$2} /^Cached:/ {cached=$2} END { printf("%3.1f%%", (total-(free+buffers+cached))/total*100)}' /proc/meminfo)
+#
+## up time
+UT=$(awk '{$0=$1} {FS="."; $0=$0; print $1}' < /proc/uptime)
+# convert seconds to days/hours/minutes
+DAYS=$(($UT / 86400));REM=$(($UT-( $DAYS * 86400 )))
+HOURS=$(($REM / 3600));REM=$(($REM-( $HOURS * 3600 )))
+MINS=$(($REM / 60))
+#
+# single / plural text
+if [ $DAYS ==  0 ]; then DTXT=""
+        elif [ $DAYS == 1 ]; then DTXT="$DAYS day,"
+        else DTXT="$DAYS days,"
+fi
+#
+if [ $HOURS ==  0 ]; then HTXT=""
+        elif [ $HOURS == 1 ]; then HTXT="$HOURS hour and"
+        else HTXT="$HOURS hours and"
+fi
+#
+if [ $MINS ==  0 ]; then MTXT=""
+        elif [ $MINS == 1 ]; then MTXT="$MINS minute"
+        else MTXT="$MINS minutes"
+fi
+upTime="$DTXT $HTXT $MTXT"
+#
+## number of running processes
+procs=$(/bin/ls -d /proc/[0-9]* | wc -l)
+#
+left "Load: $load ... Memory usage: $memUse ... Processes: $procs"
+MSG1="$FLM"
+left "Uptime: $upTime"
+MSG2="$FLM"
+#
+# end of pre-processing
+#
+echo -e "$MSG1"
+echo -e "$MSG2"
+echo " #                                                               #"

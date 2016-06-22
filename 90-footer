@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# Lower half of the welcome header, with current date/time
+# change the format to suit
+#
+# To control message formatting this function centers a piece of text
+#  and puts some '#'s around it
+centre(){
+SP1=$(( (63 - ( ${#1} )) /2 ))
+SP2=$SP1
+# need an extra space when total length is 1 short (can't have half-spaces on both sides!)
+if [[ $(($SP1 + ${#1} + $SP2 )) < 63 ]]; then SP2=$(($SP2+1));fi
+# put message together (formatted centred message)
+FCM="#"$(printf %"$SP1"s)"$1"$(printf %"$SP2"s)"#"
+return 0
+}
+# get/format date
+DT=`date "+%d-%b-%Y, %H:%M"`
+#
+# call function to create centered message
+centre "$DT"
+DT="$FCM"
+#
+# end of pre-processing
+#
+echo " #                                                               #"
+echo " $DT"
+echo " #                                                               #"
+echo " #################################################################"
+echo

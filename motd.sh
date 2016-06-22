@@ -15,18 +15,26 @@
 #apt-get upgrade
 #apt-get install update-notifier-common
 
-mkdir /etc/update-motd.d
-mkdir /etc/update-motd-static.d
+if [ ! -d /etc/update-motd.d ]; then
+  mkdir /etc/update-motd.d
+fi
+
+if [ ! -d /etc/update-motd-static.d ]; then
+  mkdir /etc/update-motd-static.d
+fi
 
 # Either run these
-rm /run/motd.dynamic
-rm /etc/motd
-rm /etc/motd.tail
+if [ -f /run/motd.dynamic ]; then
+  rm /run/motd.dynamic
+fi
 
-# or these:
-#mv /run/motd.dynamic /run/motd.dynamic.old
-#mv /etc/motd /etc/motd.old
-#mv /etc/motd.tail /etc/motd.tail.old
+if [ -f /run/motd ]; then
+  rm /etc/motd
+fi
+
+if [ -f /run/motd.tail ]; then
+  rm /etc/motd.tail
+fi
 
 ln -s /run/motd /etc/motd
 
@@ -44,8 +52,8 @@ cp 15-disk-space /etc/update-motd-static.d/15-disk-space
 cp 20-packages /etc/update-motd-static.d/20-packages
 
 #Create a cron entry for the new motd files
-crontab -l > /tmp/mycron
-echo << EOF >> /tmp/mycron
+crontab -l > /tmp/mycron || touch /tmp/mycron
+cat <<EOF >> /tmp/mycron
 # update the 'static' parts of message of the day, every hour
 0 * * * * run-parts /etc/update-motd-static.d
 EOF
